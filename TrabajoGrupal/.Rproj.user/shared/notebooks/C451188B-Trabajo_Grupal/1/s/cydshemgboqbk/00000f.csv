@@ -1,0 +1,3 @@
+"0","#| include: false"
+"0","#Carga de los datos"
+"0","df <- read_excel(""../ventas_simuladas_tarea.xlsx"")"

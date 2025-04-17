@@ -1,0 +1,8 @@
+"0","#| include: false"
+"0","#ventas mensuales x producto hasta fecha de analisis "
+"0",""
+"0","ventas_mensuales_producto <- df %>%"
+"0","  filter(Producto == producto_analisis & Fecha <= fecha_analisis) %>% "
+"0","  mutate(Año = year(Fecha), Mes = month(Fecha)) %>%  #"
+"0","  group_by(Producto, Año, Mes) %>% "
+"0","  summarise(Total_Ventas_Producto = sum(Ventas, na.rm = TRUE), .groups = ""drop"")"

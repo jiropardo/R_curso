@@ -1,0 +1,6 @@
+"0","#| include: false"
+"0","acumulado_anual_producto <- df %>%"
+"0","  filter(Producto == producto_analisis) %>%  "
+"0","  mutate(Año = year(Fecha)) %>%  "
+"0","  group_by(Producto, Año) %>%  "
+"0","  summarise(Total_Ventas_Producto_Anual = sum(Ventas, na.rm = TRUE), .groups = ""drop"")"

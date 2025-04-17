@@ -1,0 +1,3 @@
+"0","#| include: false"
+"0","# filtro de datos hasta la fecha"
+"0","datos_totales_filtrados <- datos_totales %>% filter(Fecha <=fecha_analisis)"

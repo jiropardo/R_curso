@@ -1,0 +1,6 @@
+"0","#| include: false"
+"0","# calcular ventas totales por mes y año"
+"0","datos_totales <- df %>% group_by(Fecha) %>% "
+"0","                  summarise(Total_Ventas= sum(Ventas)) %>% "
+"0","                  mutate(Mes= month(Fecha, label=TRUE, abbr = FALSE),"
+"0","                         Año= year(Fecha))"

@@ -1,0 +1,4 @@
+"0","#| echo: false"
+"0","ft <- flextable(acumulado_anual_producto)"
+"0","ft <- autofit(ft)"
+"0","ft"
