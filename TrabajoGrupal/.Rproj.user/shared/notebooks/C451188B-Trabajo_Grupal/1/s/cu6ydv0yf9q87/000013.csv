@@ -1,5 +1,0 @@
-"0","#| echo: false"
-"0","ft <- flextable(ventas_dif_mes_interanual[, c(""Total_Ventas"", ""Mes"",""Año"",""Dif_abs"",""Dif_por"")]) "
-"0","ft <- autofit(ft) "
-"0","ft <- colformat_num(ft, j = ""Dif_por"", digits = 2, suffix = ""%"", na_str = ""-"")"
-"0","ft "

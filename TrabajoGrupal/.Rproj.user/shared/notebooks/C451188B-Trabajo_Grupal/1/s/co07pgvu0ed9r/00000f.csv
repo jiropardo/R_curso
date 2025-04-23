@@ -1,5 +1,0 @@
-"0","#| include: false"
-"0","# Función personalizada para agregar el símbolo de porcentaje"
-"0","formato_porcentaje <- function(x) {"
-"0","  paste0(round(x, 2), ""%"")"
-"0","}"

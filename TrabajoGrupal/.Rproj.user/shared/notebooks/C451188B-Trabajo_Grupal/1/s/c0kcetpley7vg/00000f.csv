@@ -1,7 +1,0 @@
-"0","#| include: false"
-"0","# Vector de mses"
-"0","meses_es <- c(""Enero"", ""Febrero"", ""Marzo"", ""Abril"", ""Mayo"", ""Junio"",""Julio"", ""Agosto"", ""Septiembre"", ""Octubre"",""Noviembre"",""Diciembre"")"
-"0",""
-"0","# Guarda fecha con formato"
-"0",""
-"0","fecha_analisis <- as.Date(sprintf(""%d-%02d-01"", anio_analisis, match(mes_analisis, meses_es))) # 2025-02-01"
