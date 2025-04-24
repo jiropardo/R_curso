@@ -1,5 +1,5 @@
 ---
-title: "Trabajo_Grupal"
+title: "Proyecto Final"
 format:
   docx:
     toc: false
@@ -37,10 +37,11 @@ df <- read_excel("../ventas_grupo_2.xlsx")
 ## Parametros de cambio
 
 ```{r}
+#| include: false
 mes_analisis <- "Abril"
-anio_analisis <- 2024 
-producto_analisis <- "Producto A"
-region_analisis <- 1
+anio_analisis <- 2025 
+producto_analisis <- "Producto B"
+region_analisis <- 2
 ```
 
 ```{r}
@@ -68,18 +69,58 @@ datos_totales <- df %>% group_by(Fecha) %>%
 datos_totales_filtrados <- datos_totales %>% filter(Fecha <=fecha_analisis)
 ```
 
-## Cálculos de Análisis
+```{r}
+#| include: false
+### function 1 para calcular crecimiento de ventas
+#del producto respecto al año anterior
+#| include: false
+compare_ventas_Aglobal <- function(df, input_year) {
+  # sort por año
+  df_sorted <- df %>%
+    arrange(Año)
+  
+  # encontrar fila 
+  row_index <- which(df_sorted$Año == input_year)
+  
+  # verificas si existe
+  if(length(row_index) == 0) {
+    return("Año no encontrado en el dataset")
+  }
+  
+  # Comparar con la anteior 
+  if(row_index > 1) {
+    current_ventas <- df_sorted$Ventas_totales[row_index]
+    previous_ventas <- df_sorted$Ventas_totales[row_index - 1]
+    
+    # Vector for growth/decrease
+    result_vector <- c("crecimiento", "decrecimiento", "datos insuficientes con respecto al año anterior para confirmar crecimiento o decrecimiento")
+    
+    # devoler "Crecimiento" si es mayor, "Decrecimiento" si es menor
+    if(current_ventas > previous_ventas) {
+      return(result_vector[1])  # "Crecimiento"
+    } else {
+      return(result_vector[2])  # "Decrecimiento"
+    }
+  } else {
+    return("No previous year to compare")
+  }
+}
 
-### 1.Análisis Global
+```
 
-####-Análisis acumulado anual por año Global
+
+# Cálculos de Análisis
+
+## 1.Análisis Global
+
+#### 1.1 Análisis acumulado anual por año Global
 
 ```{r}
 #| include: false
 # Preparar un cuadro acumulado de cálculo anual
 
 # ventas_totales_por_anio
-acumulado_anual <- datos_totales %>%      filter(month(Fecha)<=month(fecha_analisis)) %>% 
+acumulado_anual <- datos_totales %>%  
 group_by(Año) %>% summarise(Ventas_totales= sum(Total_Ventas)) %>% arrange(Año)
 
 # Cálculo de diferencias
@@ -130,10 +171,10 @@ ft <- autofit(ft)
 ft <- colformat_num(ft, j = "Dif_por", digits = 2, suffix = "%", na_str = "-")
 ft
 ```
+Comparando las ventas del año `r anio_analisis` con respecto al año anterior `r anio_analisis-1` hubo `r compare_ventas_Aglobal(acumulado_anual_diferencias, anio_analisis)`.
 
-El acumulado al mes de `r mes_analisis` del año `r anio_analisis` fue de `r format(tail(acumulado_anual_diferencias$Ventas_totales,1), big.mark=",")`. Respecto al año anterior se `r selecciona_sinonimo(tail(acumulado_anual_diferencias$Dif_abs,1),2)` las ventas en un `r tail(acumulado_anual_diferencias$Dif_por,1)`%
 
-####-Comparación intermensual (Mes actual vs mes anterior)
+#### 1.2 Comparación intermensual (Mes actual vs mes anterior)
 
 ```{r}
 #| include: false
@@ -158,7 +199,7 @@ ft
 
 En el mes de `r mes_analisis` del año `r anio_analisis` las ventas fueron de `r format(tail(ventas_dif_mes$Total_Ventas,1), big.mark=",")`, y las ventas tuvieron un `r selecciona_sinonimo(tail(ventas_dif_mes$Dif_abs,1),1)` de `r tail(ventas_dif_mes$Dif_abs,1)` dólares con respecto al mes anterior
 
-####-Comparación interanual mismo mes vs mismo mes del año anterior)
+#### 1.3 Comparación interanual mismo mes vs mismo mes del año anterior)
 
 ```{r}
 #| include: false
@@ -184,9 +225,9 @@ ft
 
 En el mes de `r mes_analisis` del año `r anio_analisis` las ventas fueron de `r format(tail(ventas_dif_mes_interanual$Total_Ventas,1), big.mark=",")` dólares, y las ventas tuvieron un `r selecciona_sinonimo(tail(ventas_dif_mes_interanual$Dif_abs,1),1)` de `r tail(ventas_dif_mes_interanual$Dif_por,1)`% con respecto al mes del año anterior.
 
-### 2.Análisis por Dimensión
+## 2.Análisis por Dimensión
 
-####2.1Ventas mensuales x producto hasta fecha de analisis 
+### 2.1Ventas mensuales x producto hasta fecha de análisis 
 
 ```{r}
 #| include: false
@@ -199,9 +240,9 @@ ventas_mensuales_producto <- df %>%
   summarise(Total_Ventas_Producto = sum(Ventas, na.rm = TRUE), .groups = "drop")
 ```
 
-####2.2 Análisis por Producto
+### 2.2 Análisis por Producto
 
-#####-Análisis acumulado anual por Producto
+#### 2.2.1 -Análisis acumulado anual por Producto
 
 ```{r}
 #| include: false
@@ -212,10 +253,18 @@ acumulado_anual_producto <- df %>%
   summarise(Total_Ventas_Producto_Anual = sum(Ventas, na.rm = TRUE), .groups = "drop")
 ```
 
+```{r}
+#| echo: false
+ft <- flextable(acumulado_anual_producto)
+ft <- autofit(ft)
+ft
+```
 
-#####-Análisis intermensual por Producto
+
+#### 2.2.2 -Análisis intermensual por Producto
 
 ```{r}
+#| include: false
 ventas_totales_mes_producto <- df %>%
 filter(Fecha==fecha_analisis & Producto == producto_analisis) %>%
 group_by(Fecha, Producto) %>% summarise(Total_Ventas=sum(Ventas))  %>%
@@ -231,10 +280,18 @@ ventas_dif_mes_producto <- rbind(ventas_totales_mes_anterior_producto ,ventas_to
 ventas_dif_mes_producto <- ventas_dif_mes_producto %>% mutate(Dif_abs=Total_Ventas-lag(Total_Ventas),
        Dif_por= round((Total_Ventas/lag(Total_Ventas)-1)*100,2                                        ))
 ```
+```{r}
+#| echo: false
+ft <- flextable(ventas_dif_mes_producto[, c("Fecha","Total_Ventas", "Producto","Dif_abs","Dif_por")]) 
+ft <- autofit(ft) 
+ft <- colformat_num(ft, j = "Dif_por", digits = 2, suffix = "%", na_str = "-")
+ft 
+```
 
-#####-Análisis interanual por Producto
+#### 2.2.3 -Análisis interanual por Producto
 
 ```{r}
+#| include: false
 #
 ventas_totales_mes_interanual_producto <- df %>% filter(Fecha==fecha_analisis & Producto == producto_analisis) %>%
 group_by(Fecha, Producto) %>% summarise(Total_Ventas=sum(Ventas))  %>%
@@ -254,9 +311,18 @@ ventas_dif_mes_interanual_producto <- ventas_dif_mes_interanual_producto %>% mut
        Dif_por= round((Total_Ventas/lag(Total_Ventas)-1)*100,2                                        ))
 #
 ```
-####2.3 Análisis por Region
+```{r}
+#| echo: false
+ft <- flextable(ventas_dif_mes_interanual_producto[, c("Fecha","Total_Ventas", "Producto","Dif_abs","Dif_por")]) 
+ft <- autofit(ft) 
+ft <- colformat_num(ft, j = "Dif_por", digits = 2, suffix = "%", na_str = "-")
+ft 
+```
 
-#####-Análisis acumulado anual por Region
+
+### 2.3 Análisis por Región
+
+#### 2.3.1 -Análisis acumulado anual por Región
 
 ```{r}
 #| include: false
@@ -267,9 +333,18 @@ acumulado_anual_region <- df %>%
   summarise(Total_Ventas_Region_Anual = sum(Ventas, na.rm = TRUE), .groups = "drop")
 ```
 
-#####-Análisis intermensual por Region
+```{r}
+#| echo: false
+ft <- flextable(acumulado_anual_region)
+ft <- autofit(ft)
+ft
+```
+
+
+#### 2.3.2 -Análisis intermensual por Región
 
 ```{r}
+#| include: false
 ventas_totales_mes_region <- df %>% filter(Fecha==fecha_analisis & Region == region_analisis) %>%
 group_by(Fecha, Region) %>% summarise(Total_Ventas=sum(Ventas))  %>%
 ungroup()
@@ -285,9 +360,19 @@ ventas_dif_mes_region <- ventas_dif_mes_region %>% mutate(
     Dif_por = round((Total_Ventas / lag(Total_Ventas) - 1) * 100, 2))
 ```
 
-#####-Análisis interanual por Region
+```{r}
+#| echo: false
+ft <- flextable(ventas_dif_mes_region[, c("Fecha","Total_Ventas", "Region","Dif_abs","Dif_por")]) 
+ft <- autofit(ft) 
+ft <- colformat_num(ft, j = "Dif_por", digits = 2, suffix = "%", na_str = "-")
+ft 
+```
+
+
+#### 2.3.3 -Análisis interanual por Región
 
 ```{r}
+#| include: false
 ventas_totales_mes_interanual_region <- df %>% filter(Fecha==fecha_analisis & Region == region_analisis) %>%
 group_by(Fecha, Region) %>% summarise(Total_Ventas=sum(Ventas))  %>%
 ungroup()
@@ -306,61 +391,34 @@ ventas_dif_mes_interanual_region <- ventas_dif_mes_interanual_region %>% mutate(
        Dif_por= round((Total_Ventas/lag(Total_Ventas)-1)*100,2                                        ))
 ```
 
+```{r}
+#| echo: false
+ft <- flextable(ventas_dif_mes_interanual_region[, c("Fecha","Total_Ventas", "Region","Dif_abs","Dif_por")]) 
+ft <- autofit(ft) 
+ft <- colformat_num(ft, j = "Dif_por", digits = 2, suffix = "%", na_str = "-")
+ft 
+```
 
 
-###3.Tabla acumulado anual producto seleccionado
+## 3.Gráficas 
+
+### 3.1 Tabla Comparación ventas anuales globales
 
 ```{r}
 #| echo: false
-ft <- flextable(acumulado_anual_producto)
-ft <- autofit(ft)
-ft
+#| message: false
+#| warning: false
+ggplot(acumulado_anual, aes(x = Año, y = Ventas_totales)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  geom_point(color = "darkred", size = 3) +
+  labs(
+    title = "Comparación Ventas Globales por Año",
+    x = "Año",
+    y = "Ventas Totales"
+  )
 ```
 
-```{r}
-#| include: false
-### function para calcular crecimiento de ventas
-#del producto respecto al año anterior
-#| include: false
-compare_ventas <- function(df, input_year) {
-  # sort por año
-  df_sorted <- df %>%
-    arrange(Año)
-  
-  # encontrar fila 
-  row_index <- which(df_sorted$Año == input_year)
-  
-  # verificas si existe
-  if(length(row_index) == 0) {
-    return("Año no encontrado en el dataset")
-  }
-  
-  # Comparar con la anteior 
-  if(row_index > 1) {
-    current_ventas <- df_sorted$Total_Ventas_Producto_Anual[row_index]
-    previous_ventas <- df_sorted$Total_Ventas_Producto_Anual[row_index - 1]
-    
-    # Vector for growth/decrease
-    result_vector <- c("crecimiento", "decrecimiento", "datos insuficientes con respecto al año anterior para confirmar crecimiento o decrecimiento")
-    
-    # devoler "Crecimiento" si es mayor, "Decrecimiento" si es menor
-    if(current_ventas > previous_ventas) {
-      return(result_vector[1])  # "Crecimiento"
-    } else {
-      return(result_vector[2])  # "Decrecimiento"
-    }
-  } else {
-    return("No previous year to compare")
-  }
-}
-
-```
-
-## Ventas con respecto al año anterior
-
-Comparando las ventas del año `r anio_analisis` con respecto al año anterior `r anio_analisis-1` hubo `r compare_ventas(acumulado_anual_producto, anio_analisis)`.
-
-## Comparación ventas anuales producto seleccionado
+### 3.2 Tabla Comparación ventas anuales producto `r producto_analisis` 
 
 ```{r}
 #| echo: false
@@ -374,4 +432,19 @@ ggplot(acumulado_anual_producto, aes(x = Año, y = Total_Ventas_Producto_Anual, 
        y = "Total de Ventas Anuales") +
   theme_minimal()
 ```
+### 3.3 Tabla Comparación ventas anuales por Región `r region_analisis` 
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+ggplot(acumulado_anual_region, aes(x = Año, y = Total_Ventas_Region_Anual, group = Region)) +
+  geom_line(color = "green", size = 1) +  # Line color and size
+  geom_point(color = "cyan", size = 3) +  # Points on the line
+  labs(title = "Ventas Anuales por Region",
+       x = "Año",
+       y = "Total de Ventas Anuales") +
+  theme_minimal()
+```
+
 
